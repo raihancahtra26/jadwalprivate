@@ -33,7 +33,6 @@
         body {
             max-width: 100vw;
             overflow-x: hidden;
-            /* Mencegah layar HP tergeser/zoom-out */
         }
 
         * {
@@ -105,7 +104,7 @@
             color: #fbbf24;
         }
 
-        /* Layout Container & Cards - Diubah ke Flexbox agar tidak tembus layout */
+        /* Layout Container & Cards */
         .container {
             padding: 40px 24px;
             max-width: 1280px;
@@ -154,6 +153,39 @@
         .card-header h3 i {
             color: var(--primary);
             font-size: 24px;
+        }
+
+        /* Search Box Styling */
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .search-box input {
+            padding: 12px 16px 12px 42px;
+            border-radius: 99px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            transition: 0.3s;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .search-box input:focus {
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            border-color: var(--primary);
+            outline: none;
         }
 
         /* Mode Switcher Tabs */
@@ -247,7 +279,6 @@
             box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
 
-        /* Dropdown Icon Styling */
         select {
             appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -415,7 +446,7 @@
             transform: translateX(16px);
         }
 
-        /* Table Responsive Styles (Pengunci Scroll) */
+        /* Table Responsive Styles */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -433,7 +464,6 @@
             min-width: 850px;
         }
 
-        /* Min-width agar tabel tidak berantakan di HP */
         th,
         td {
             padding: 16px;
@@ -596,7 +626,6 @@
                 font-size: 18px;
             }
 
-            /* Form & Tombol Full Lebar di HP */
             .form-grid {
                 grid-template-columns: 1fr;
                 gap: 16px;
@@ -618,6 +647,7 @@
             .card-header {
                 align-items: flex-start;
                 flex-direction: column;
+                gap: 16px;
             }
 
             .badge-container {
@@ -625,6 +655,12 @@
                 width: 100%;
                 justify-content: flex-start;
             }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            /* Search box full width di HP */
 
             /* Mode Switcher Flex */
             .mode-switcher {
@@ -679,7 +715,8 @@
             #form-card,
             .hide-print,
             .switch-wrapper,
-            .btn-outline {
+            .btn-outline,
+            .search-box {
                 display: none !important;
             }
 
@@ -883,13 +920,26 @@
 
         <!-- Table Card -->
         <div class="card">
-            <div class="card-header">
-                <h3><i class="ph-fill ph-table"></i> Rekapan Jadwal & Finansial</h3>
-                <div class="badge-container hide-print">
-                    <span id="stats" class="stats-badge">0 Jadwal</span>
-                    <span id="stats-biaya" class="stats-badge stats-income">Total: Rp 0</span>
-                    <button class="btn-outline" onclick="window.print()" style="padding: 6px 14px;"><i
-                            class="ph-bold ph-printer"></i> Cetak PDF</button>
+            <div class="card-header" style="flex-direction: column; align-items: stretch; gap: 20px;">
+                <!-- Header Atas: Judul dan Badge -->
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                    <h3><i class="ph-fill ph-table"></i> Rekapan Jadwal & Finansial</h3>
+                    <div class="badge-container hide-print">
+                        <span id="stats" class="stats-badge">0 Jadwal</span>
+                        <span id="stats-biaya" class="stats-badge stats-income">Total: Rp 0</span>
+                        <button class="btn-outline" onclick="window.print()" style="padding: 6px 14px;"><i
+                                class="ph-bold ph-printer"></i> Cetak PDF</button>
+                    </div>
+                </div>
+
+                <!-- Header Bawah: Kolom Pencarian -->
+                <div class="hide-print" style="display: flex; justify-content: flex-end;">
+                    <div class="search-box">
+                        <i class="ph-bold ph-magnifying-glass"></i>
+                        <input type="text" id="search-input" placeholder="Cari siswa, tanggal, mapel, lokasi..."
+                            oninput="render()">
+                    </div>
                 </div>
             </div>
 
@@ -1156,98 +1206,118 @@
             tb.innerHTML = "";
             let totalPendapatan = 0;
 
-            if (data.length === 0) {
-                tb.innerHTML = `<tr><td colspan="10"><div class="empty-state">Belum ada jadwal yang ditambahkan.</div></td></tr>`;
-            } else {
-                let jumlahHari = {}; let jumlahTgl = {};
+            // Ambil Keyword Search
+            let searchInput = document.getElementById("search-input");
+            let keyword = searchInput ? searchInput.value.toLowerCase() : "";
 
-                data.forEach(d => {
-                    let keyTgl = d.t || "Tanpa Tanggal";
-                    let info = formatTanggal(d.t);
-                    let keyHari = info.hari;
-                    jumlahHari[keyHari] = (jumlahHari[keyHari] || 0) + 1;
-                    jumlahTgl[keyTgl] = (jumlahTgl[keyTgl] || 0) + 1;
-                });
+            // Filter data yang cocok dengan keyword pencarian, mapping index originalnya
+            let filteredData = data.map((d, index) => ({ ...d, oriIndex: index })).filter(d => {
+                let info = formatTanggal(d.t);
+                let searchStr = `${d.t} ${info.hari} ${info.tgl} ${d.s} ${d.i} ${d.m} ${d.l}`.toLowerCase();
+                return searchStr.includes(keyword);
+            });
 
-                let hariSaatIni = ""; let tglSaatIni = ""; let hariIniStr = getTodayString();
-
-                data.forEach((d, index) => {
-                    let keyTgl = d.t || "Tanpa Tanggal";
-                    let infoTanggal = formatTanggal(d.t);
-                    let keyHari = infoTanggal.hari;
-
-                    let dDate = new Date(keyTgl);
-                    let todayDate = new Date(hariIniStr);
-                    let diffDays = Math.round((dDate - todayDate) / (1000 * 60 * 60 * 24));
-
-                    let isPast = (diffDays < 0);
-                    let isToday = (diffDays === 0);
-
-                    let rowClass = isToday ? 'row-today' : (isPast ? 'row-past' : '');
-                    let htmlRow = `<tr class="${rowClass}">`;
-
-                    let biayaPerSesi = parseInt(d.b) || 0;
-                    let jumlahSesi = parseInt(d.js) || 1;
-                    let totalBaris = biayaPerSesi * jumlahSesi;
-
-                    let isHitung = d.hitung !== false;
-                    if (isHitung) totalPendapatan += totalBaris;
-
-                    let formatBiaya = totalBaris > 0 ? `Rp ${totalBaris.toLocaleString('id-ID')}` : '-';
-                    let biayaCellClass = isHitung ? 'biaya-active' : 'biaya-inactive';
-
-                    let jenisBadge = d.jenis === 'Pengganti'
-                        ? `<span class="badge-type type-pengganti" title="Jadwal Perubahan/Reschedule">PENGGANTI</span>`
-                        : `<span class="badge-type type-rutin" title="Jadwal Tetap">RUTIN</span>`;
-
-                    if (keyHari !== hariSaatIni) {
-                        hariSaatIni = keyHari;
-                        htmlRow += `<td rowspan="${jumlahHari[keyHari]}" class="merged-hari">${keyHari}</td>`;
-                    }
-
-                    if (keyTgl !== tglSaatIni) {
-                        tglSaatIni = keyTgl;
-                        let todayCellClass = isToday ? 'today' : '';
-                        let tglClass = isPast ? 'tgl terlewat' : 'tgl';
-
-                        htmlRow += `
-                        <td rowspan="${jumlahTgl[keyTgl]}" class="merged-day ${todayCellClass}">
-                            <span class="${tglClass}">${infoTanggal.tgl}</span>
-                            ${jenisBadge}
-                        </td>`;
-                    }
-
-                    htmlRow += `
-                        <td style="font-weight: 500;">${d.w}</td>
-                        <td style="font-weight: 700; color: var(--primary);">${d.s}</td>
-                        <td style="font-size: 13px;">${d.i}</td>
-                        <td style="font-size: 13px;">${d.m}</td>
-                        <td style="font-size: 13px;">${d.l}</td>
-                        <td style="text-align: center; font-weight: 600;">${jumlahSesi}x</td>
-                        <td class="${biayaCellClass}">${formatBiaya}</td>
-                        <td class="hide-print">
-                            <div class="action-cell">
-                                <div class="switch-wrapper" title="Hitung ke total pendapatan?">
-                                    Hitung
-                                    <label class="switch">
-                                        <input type="checkbox" onchange="toggleHitung(${index})" ${isHitung ? 'checked' : ''}>
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="btn-sm btn-edit" onclick="edit(${index})"><i class="ph-bold ph-pencil-simple"></i> Edit</button>
-                                    <button class="btn-sm btn-danger" onclick="del(${index})"><i class="ph-bold ph-trash"></i> Hapus</button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>`;
-
-                    tb.innerHTML += htmlRow;
-                });
+            if (filteredData.length === 0) {
+                tb.innerHTML = `<tr><td colspan="10"><div class="empty-state">Belum ada jadwal yang ditemukan.</div></td></tr>`;
+                stats.innerHTML = `0 Jadwal`;
+                statsBiaya.innerHTML = `Total: Rp 0`;
+                printStats.innerHTML = `0 Jadwal`;
+                printStatsBiaya.innerHTML = `Rp 0`;
+                return;
             }
 
-            stats.innerHTML = `${data.length} Jadwal`; statsBiaya.innerHTML = `Total: Rp ${totalPendapatan.toLocaleString('id-ID')}`;
-            printStats.innerHTML = `${data.length} Jadwal`; printStatsBiaya.innerHTML = `Rp ${totalPendapatan.toLocaleString('id-ID')}`;
+            let jumlahHari = {}; let jumlahTgl = {};
+
+            filteredData.forEach(d => {
+                let keyTgl = d.t || "Tanpa Tanggal";
+                let info = formatTanggal(d.t);
+                let keyHari = info.hari;
+                jumlahHari[keyHari] = (jumlahHari[keyHari] || 0) + 1;
+                jumlahTgl[keyTgl] = (jumlahTgl[keyTgl] || 0) + 1;
+            });
+
+            let hariSaatIni = ""; let tglSaatIni = ""; let hariIniStr = getTodayString();
+
+            filteredData.forEach((d) => {
+                let oriIndex = d.oriIndex; // Ambil index original untuk Edit, Hapus, dan Toggle
+                let keyTgl = d.t || "Tanpa Tanggal";
+                let infoTanggal = formatTanggal(d.t);
+                let keyHari = infoTanggal.hari;
+
+                let dDate = new Date(keyTgl);
+                let todayDate = new Date(hariIniStr);
+                let diffDays = Math.round((dDate - todayDate) / (1000 * 60 * 60 * 24));
+
+                let isPast = (diffDays < 0);
+                let isToday = (diffDays === 0);
+
+                let rowClass = isToday ? 'row-today' : (isPast ? 'row-past' : '');
+                let htmlRow = `<tr class="${rowClass}">`;
+
+                let biayaPerSesi = parseInt(d.b) || 0;
+                let jumlahSesi = parseInt(d.js) || 1;
+                let totalBaris = biayaPerSesi * jumlahSesi;
+
+                let isHitung = d.hitung !== false;
+                if (isHitung) totalPendapatan += totalBaris;
+
+                let formatBiaya = totalBaris > 0 ? `Rp ${totalBaris.toLocaleString('id-ID')}` : '-';
+                let biayaCellClass = isHitung ? 'biaya-active' : 'biaya-inactive';
+
+                let jenisBadge = d.jenis === 'Pengganti'
+                    ? `<span class="badge-type type-pengganti" title="Jadwal Perubahan/Reschedule">PENGGANTI</span>`
+                    : `<span class="badge-type type-rutin" title="Jadwal Tetap">RUTIN</span>`;
+
+                if (keyHari !== hariSaatIni) {
+                    hariSaatIni = keyHari;
+                    htmlRow += `<td rowspan="${jumlahHari[keyHari]}" class="merged-hari">${keyHari}</td>`;
+                }
+
+                if (keyTgl !== tglSaatIni) {
+                    tglSaatIni = keyTgl;
+                    let todayCellClass = isToday ? 'today' : '';
+                    let tglClass = isPast ? 'tgl terlewat' : 'tgl';
+
+                    htmlRow += `
+                    <td rowspan="${jumlahTgl[keyTgl]}" class="merged-day ${todayCellClass}">
+                        <span class="${tglClass}">${infoTanggal.tgl}</span>
+                        ${jenisBadge}
+                    </td>`;
+                }
+
+                htmlRow += `
+                    <td style="font-weight: 500;">${d.w}</td>
+                    <td style="font-weight: 700; color: var(--primary);">${d.s}</td>
+                    <td style="font-size: 13px;">${d.i}</td>
+                    <td style="font-size: 13px;">${d.m}</td>
+                    <td style="font-size: 13px;">${d.l}</td>
+                    <td style="text-align: center; font-weight: 600;">${jumlahSesi}x</td>
+                    <td class="${biayaCellClass}">${formatBiaya}</td>
+                    <td class="hide-print">
+                        <div class="action-cell">
+                            <div class="switch-wrapper" title="Hitung ke total pendapatan?">
+                                Hitung
+                                <label class="switch">
+                                    <input type="checkbox" onchange="toggleHitung(${oriIndex})" ${isHitung ? 'checked' : ''}>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn-sm btn-edit" onclick="edit(${oriIndex})"><i class="ph-bold ph-pencil-simple"></i> Edit</button>
+                                <button class="btn-sm btn-danger" onclick="del(${oriIndex})"><i class="ph-bold ph-trash"></i> Hapus</button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
+
+                tb.innerHTML += htmlRow;
+            });
+
+            // Perbarui stats berdasarkan hasil pencarian (Filtered)
+            stats.innerHTML = `${filteredData.length} Jadwal`;
+            statsBiaya.innerHTML = `Total: Rp ${totalPendapatan.toLocaleString('id-ID')}`;
+            printStats.innerHTML = `${filteredData.length} Jadwal`;
+            printStatsBiaya.innerHTML = `Rp ${totalPendapatan.toLocaleString('id-ID')}`;
             updatePrintDate();
         }
 
