@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Teacher MIS</title>
+    <!-- Font Inter & Phosphor Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f4f7fb;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --info: #0ea5e9;
+            --info-bg: #e0f2fe;
+            --success: #10b981;
+            --today-bg: #f0fdfa;
+            --today-highlight: #14b8a6;
+            --income-bg: #dcfce7;
+            --income-text: #15803d;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Modern Centered Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #ffffff;
+            padding: 48px 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .hero-section h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-section p {
+            font-size: 15px;
+            color: #94a3b8;
+            max-width: 600px;
+            font-weight: 400;
+        }
+
+        .btn-notif {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 99px;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
+            margin-top: 8px;
+        }
+
+        .btn-notif:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-notif i {
+            font-size: 18px;
+            color: #fbbf24;
+        }
+
+        /* Layout Container & Cards */
+        .container {
+            padding: 40px 24px;
+            max-width: 1280px;
+            margin: auto;
+            display: grid;
+            gap: 32px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .card.edit-mode {
+            border-color: var(--warning);
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        .card-header h3 i {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        /* Mode Switcher Tabs */
+        .mode-switcher {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            background: #f1f5f9;
+            padding: 6px;
+            border-radius: 12px;
+            width: max-content;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .mode-btn i {
+            font-size: 18px;
+        }
+
+        /* Form Grid System (Modern Inputs) */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            letter-spacing: 0.3px;
+        }
+
+        input,
+        select {
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 14px;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+            outline: none;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        input[type="date"],
+        select {
+            cursor: pointer;
+        }
+
+        input:focus,
+        select:focus {
+            background-color: #fff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 14px;
+        }
+
+        button.btn-primary {
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button.btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid #cbd5e1;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+
+        /* Action Column Styles */
+        .action-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+            flex: 1;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-sm:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-edit {
+            background: var(--info-bg);
+            color: var(--info);
+        }
+
+        .btn-edit:hover {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Toggle Switch Styling */
+        .switch-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--success);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        /* Table Styling */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .merged-hari {
+            background-color: #eef2ff;
+            vertical-align: middle;
+            text-align: center;
+            color: #4f46e5;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-right: 2px solid #e0e7ff;
+        }
+
+        .merged-day {
+            background-color: #f8fafc;
+            vertical-align: middle;
+            text-align: center;
+            color: var(--text-main);
+            line-height: 1.5;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        /* Date Formatting */
+        .merged-day .tgl {
+            display: block;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .tgl.terlewat {
+            text-decoration: line-through;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        /* Class Coret Tanggal Past */
+
+        /* Type Badges */
+        .badge-type {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .type-rutin {
+            background: #e0e7ff;
+            color: var(--primary);
+        }
+
+        .type-pengganti {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        /* Row Highlighting & Dimming */
+        .row-today td:not(.merged-hari):not(.merged-day) {
+            background-color: var(--today-bg);
+        }
+
+        .merged-day.today {
+            background-color: #ccfbf1 !important;
+            color: #0f766e;
+            border-left: 4px solid var(--today-highlight);
+        }
+
+        .row-past td:not(.merged-hari):not(.merged-day) {
+            background-color: #f8fafc;
+        }
+
+        /* Slight dim for past row */
+
+        .biaya-active {
+            font-weight: 700;
+            color: var(--income-text);
+        }
+
+        .biaya-inactive {
+            font-weight: 500;
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+
+        tbody tr:hover td:not(.merged-hari):not(.merged-day) {
+            background-color: #f1f5f9;
+        }
+
+        /* Stats Badges */
+        .badge-container {
+            display: inline-flex;
+            gap: 12px;
+            margin-left: auto;
+        }
+
+        .stats-badge {
+            background: #f1f5f9;
+            color: var(--text-main);
+            padding: 6px 16px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stats-income {
+            background: var(--income-bg);
+            color: var(--income-text);
+            border-color: #bbf7d0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        /* Print Media Query */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 15mm;
+            }
+
+            body {
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                font-size: 11px;
+            }
+
+            .hero-section,
+            #form-card,
+            .hide-print,
+            .switch-wrapper,
+            .btn-outline {
+                display: none !important;
+            }
+
+            .container {
+                padding: 0;
+                max-width: 100%;
+                margin: 0;
+                display: block;
+            }
+
+            .card {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .card-header {
+                border-bottom: 2px solid #0f172a;
+                margin-bottom: 24px;
+                padding-bottom: 16px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .card-header h3 {
+                font-size: 22px;
+                font-weight: 700;
+                color: #0f172a;
+                margin-bottom: 12px;
+            }
+
+            .card-header h3 i {
+                display: none;
+            }
+
+            .badge-container {
+                margin-left: 0;
+                display: flex;
+                gap: 16px;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .stats-badge {
+                border: 1px solid #cbd5e1;
+                background: #f8fafc !important;
+                color: #0f172a !important;
+                font-size: 13px;
+                padding: 6px 16px;
+            }
+
+            .stats-income {
+                border: 1px solid #bbf7d0;
+                background: #f0fdf4 !important;
+                color: #166534 !important;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            th {
+                background-color: #f1f5f9 !important;
+                color: #0f172a;
+                border: 1px solid #cbd5e1;
+                padding: 10px 8px;
+                font-size: 11px;
+            }
+
+            td {
+                border: 1px solid #cbd5e1;
+                padding: 10px 8px;
+                color: #1e293b;
+            }
+
+            .print-only {
+                display: block;
+                margin-top: 40px;
+            }
+
+            .signature-area {
+                float: right;
+                text-align: center;
+                width: 200px;
+                font-size: 12px;
+            }
+
+            .signature-line {
+                margin-top: 70px;
+                border-bottom: 1px solid #0f172a;
+                margin-bottom: 5px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 32px 20px;
+            }
+
+            .hero-section h1 {
+                font-size: 24px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            button.btn-primary,
+            .btn-outline {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .badge-container {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="hero-section hide-print">
+        <h1>Master Teacher MIS</h1>
+        <p>Sistem Informasi Manajemen Jadwal Mengajar & Finansial Profesional</p>
+        <button class="btn-notif" onclick="toggleNotification()">
+            <i class="ph-fill ph-bell-ringing"></i> Aktifkan Pengingat
+        </button>
+    </header>
+
+    <div class="container">
+        <!-- Input Form Card -->
+        <div class="card hide-print" id="form-card">
+            <div class="card-header">
+                <h3 id="form-title"><i class="ph-fill ph-calendar-plus"></i> Tambah Jadwal Baru</h3>
+            </div>
+
+            <!-- MODE SWITCHER -->
+            <div class="mode-switcher" id="mode-selector">
+                <button type="button" class="mode-btn active" id="btn-mode-rutin" onclick="setMode('rutin')">
+                    <i class="ph-bold ph-calendar-check"></i> Jadwal Tetap (Rutin)
+                </button>
+                <button type="button" class="mode-btn" id="btn-mode-pengganti" onclick="setMode('pengganti')">
+                    <i class="ph-bold ph-arrows-left-right"></i> Perubahan / Pengganti
+                </button>
+            </div>
+
+            <div class="form-grid">
+                <!-- KHUSUS MODE RUTIN -->
+                <div class="input-group rutin-only">
+                    <label>Hari Jadwal Tetap</label>
+                    <select id="hari_rutin">
+                        <option value="1">Senin</option>
+                        <option value="2">Selasa</option>
+                        <option value="3">Rabu</option>
+                        <option value="4">Kamis</option>
+                        <option value="5">Jumat</option>
+                        <option value="6">Sabtu</option>
+                        <option value="0">Minggu</option>
+                    </select>
+                </div>
+                <div class="input-group rutin-only">
+                    <label>Mulai Berlaku Tanggal</label>
+                    <input type="date" id="start_date">
+                </div>
+                <div class="input-group rutin-only">
+                    <label>Jumlah Pertemuan</label>
+                    <input type="number" id="jml_pertemuan" value="4" min="1" placeholder="Hasilkan untuk X pertemuan">
+                </div>
+
+                <!-- KHUSUS MODE PENGGANTI -->
+                <div class="input-group pengganti-only" style="display: none;">
+                    <label>Tanggal Jadwal Pengganti/Baru</label>
+                    <input type="date" id="t_pengganti">
+                </div>
+
+                <!-- UMUM -->
+                <div class="input-group">
+                    <label>Instansi / Pengajar Lembaga</label>
+                    <input list="instansi-list" id="i" placeholder="Pilih atau ketik instansi...">
+                    <datalist id="instansi-list">
+                        <option value="Skill Academy (CPNS) | Ruangguru">
+                        <option value="Ruangguru Privat | Ruangguru">
+                        <option value="Math Champs | Ruangguru">
+                        <option value="Brain Academy Center | Ruangguru">
+                        <option value="Kalananti Coding | Ruangguru"></option>
+                        <option value="Edusora Semarang | Eduprima">
+                        <option value="Bimbel Sahabat Pintar">
+                        <option value="Generation Academy | Yayasan Tri Pranata Berkah">
+                    </datalist>
+                </div>
+
+                <div class="input-group"><label>Waktu (Jam)</label><input id="w" placeholder="Contoh: 09.00 - 10.30">
+                </div>
+                <div class="input-group"><label>Siswa / Kode</label><input id="s" placeholder="Nama siswa/kode"></div>
+                <div class="input-group"><label>Mata Pelajaran</label><input id="m" placeholder="Contoh: Matematika">
+                </div>
+                <div class="input-group"><label>Lokasi Mengajar</label><input id="l" placeholder="Lokasi mengajar">
+                </div>
+                <div class="input-group"><label>Biaya / Sesi (Rp)</label><input type="number" id="b"
+                        placeholder="Contoh: 150000"></div>
+                <div class="input-group"><label>Jumlah Sesi</label><input type="number" id="js" value="1" min="1"
+                        placeholder="Jumlah sesi"></div>
+            </div>
+
+            <div class="btn-group">
+                <button id="btn-save" class="btn-primary" onclick="saveData()"><i class="ph-bold ph-floppy-disk"></i>
+                    Simpan Jadwal</button>
+                <button id="btn-cancel" class="btn-outline" onclick="cancelEdit()" style="display: none;"><i
+                        class="ph-bold ph-x"></i> Batal Edit</button>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="ph-fill ph-table"></i> Rekapan Jadwal & Finansial</h3>
+                <div class="badge-container hide-print">
+                    <span id="stats" class="stats-badge">0 Jadwal</span>
+                    <span id="stats-biaya" class="stats-badge stats-income">Total: Rp 0</span>
+                    <button class="btn-outline" onclick="window.print()" style="padding: 8px 16px; margin-left: 8px;"><i
+                            class="ph-bold ph-printer"></i> Cetak PDF</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 80px; text-align: center;">Hari</th>
+                            <th style="width: 120px; text-align: center;">Tanggal</th>
+                            <th>Waktu</th>
+                            <th>Siswa</th>
+                            <th>Instansi</th>
+                            <th>Mapel</th>
+                            <th>Lokasi</th>
+                            <th style="text-align: center;">Sesi</th>
+                            <th>Total Biaya</th>
+                            <th class="hide-print" style="width: 150px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tb"></tbody>
+                </table>
+            </div>
+
+            <div class="print-only">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; padding: 0;">Rekapan Jadwal Mengajar & Finansial</h2>
+                </div>
+                <div style="display: flex; gap: 20px; margin-bottom: 20px; justify-content: center;">
+                    <div
+                        style="border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold;">
+                        Total Jadwal: <span id="print-stats">0</span></div>
+                    <div
+                        style="border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; color: #166534; background: #f0fdf4;">
+                        Estimasi Pendapatan: <span id="print-stats-biaya">Rp 0</span></div>
+                </div>
+
+                <div class="signature-area">
+                    <p id="print-date">Tanggal Cetak: -</p>
+                    <div class="signature-line"></div>
+                    <p style="font-weight: 600;">Pengajar</p>
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem("mtmis") || "[]");
+        let editIndex = -1;
+        let currentMode = 'rutin';
+
+        const tb = document.getElementById("tb");
+        const stats = document.getElementById("stats");
+        const statsBiaya = document.getElementById("stats-biaya");
+        const printStats = document.getElementById("print-stats");
+        const printStatsBiaya = document.getElementById("print-stats-biaya");
+
+        // Element IDs
+        const elHariRutin = document.getElementById("hari_rutin");
+        const elStartDate = document.getElementById("start_date");
+        const elJmlPertemuan = document.getElementById("jml_pertemuan");
+        const elTglPengganti = document.getElementById("t_pengganti");
+
+        const inputsUmum = ['w', 's', 'i', 'm', 'l', 'b', 'js'].map(id => document.getElementById(id));
+
+        const formCard = document.getElementById("form-card"), formTitle = document.getElementById("form-title"), btnSave = document.getElementById("btn-save"), btnCancel = document.getElementById("btn-cancel");
+        const modeSelector = document.getElementById("mode-selector");
+
+        const namaHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const namaBulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+        function getTodayString() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        elStartDate.value = getTodayString();
+        elTglPengganti.value = getTodayString();
+
+        function updatePrintDate() {
+            const now = new Date();
+            const formatStr = `${now.getDate()} ${namaBulan[now.getMonth()]} ${now.getFullYear()}`;
+            document.getElementById("print-date").innerText = `Semarang, ${formatStr}`;
+        }
+        updatePrintDate();
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-mode-' + mode).classList.add('active');
+
+            if (mode === 'rutin') {
+                document.querySelectorAll('.rutin-only').forEach(el => el.style.display = 'flex');
+                document.querySelectorAll('.pengganti-only').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('.rutin-only').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.pengganti-only').forEach(el => el.style.display = 'flex');
+            }
+        }
+
+        function formatTanggal(dateStr) {
+            if (!dateStr) return { hari: "-", tgl: "-" };
+            const d = new Date(dateStr);
+            return {
+                hari: namaHari[d.getDay()],
+                tgl: `${d.getDate().toString().padStart(2, '0')} ${namaBulan[d.getMonth()]} ${d.getFullYear()}`
+            };
+        }
+
+        function getNextDayOfWeek(startDateStr, dayOfWeek) {
+            let date = new Date(startDateStr);
+            let currentDay = date.getDay();
+            let distance = (dayOfWeek + 7 - currentDay) % 7;
+            date.setDate(date.getDate() + distance);
+            return date;
+        }
+
+        function formatDateToYYYYMMDD(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const d = String(dateObj.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function updateStorage() {
+            data.sort((a, b) => {
+                let dateA = new Date(a.t || "9999-99-99");
+                let dateB = new Date(b.t || "9999-99-99");
+
+                let dayA = dateA.getDay() === 0 ? 7 : dateA.getDay();
+                let dayB = dateB.getDay() === 0 ? 7 : dateB.getDay();
+
+                if (dayA !== dayB) return dayA - dayB;
+
+                let strA = a.t || "9999-99-99";
+                let strB = b.t || "9999-99-99";
+                if (strA !== strB) return strA.localeCompare(strB);
+
+                return a.w.localeCompare(b.w);
+            });
+            localStorage.setItem("mtmis", JSON.stringify(data));
+            render();
+        }
+
+        function saveData() {
+            let w = inputsUmum[0].value;
+            let s = inputsUmum[1].value;
+            let instansi = inputsUmum[2].value;
+
+            if (!w || !s || !instansi) {
+                alert("Harap lengkapi Waktu, Siswa, dan Instansi terlebih dahulu.");
+                return;
+            }
+
+            if (editIndex === -1) {
+                if (currentMode === 'rutin') {
+                    let targetDay = parseInt(elHariRutin.value);
+                    let startDateStr = elStartDate.value;
+                    let count = parseInt(elJmlPertemuan.value) || 1;
+
+                    if (!startDateStr) return alert("Pilih Tanggal Mulai terlebih dahulu.");
+
+                    let currentGeneratedDate = getNextDayOfWeek(startDateStr, targetDay);
+
+                    for (let i = 0; i < count; i++) {
+                        let tStr = formatDateToYYYYMMDD(currentGeneratedDate);
+                        data.push({
+                            t: tStr, w: w, s: s, i: instansi,
+                            m: inputsUmum[3].value, l: inputsUmum[4].value, b: inputsUmum[5].value,
+                            js: inputsUmum[6].value || 1, hitung: true, jenis: 'Rutin'
+                        });
+                        currentGeneratedDate.setDate(currentGeneratedDate.getDate() + 7);
+                    }
+                } else {
+                    let tStr = elTglPengganti.value;
+                    if (!tStr) return alert("Pilih Tanggal Pengganti terlebih dahulu.");
+
+                    data.push({
+                        t: tStr, w: w, s: s, i: instansi,
+                        m: inputsUmum[3].value, l: inputsUmum[4].value, b: inputsUmum[5].value,
+                        js: inputsUmum[6].value || 1, hitung: true, jenis: 'Pengganti'
+                    });
+                }
+            } else {
+                let tStr = elTglPengganti.value;
+                if (!tStr) return alert("Tanggal tidak boleh kosong.");
+
+                let o = {
+                    t: tStr, w: w, s: s, i: instansi,
+                    m: inputsUmum[3].value, l: inputsUmum[4].value, b: inputsUmum[5].value,
+                    js: inputsUmum[6].value || 1, hitung: data[editIndex].hitung !== false,
+                    jenis: 'Pengganti'
+                };
+
+                data[editIndex] = o;
+                cancelEdit();
+                updateStorage();
+                return;
+            }
+
+            updateStorage();
+            inputsUmum.slice(0, 6).forEach(el => el.value = "");
+            document.getElementById("js").value = 1;
+        }
+
+        function edit(index) {
+            editIndex = index; const d = data[index];
+
+            setMode('pengganti');
+            modeSelector.style.display = 'none';
+
+            elTglPengganti.value = d.t || "";
+            inputsUmum[0].value = d.w;
+            inputsUmum[1].value = d.s;
+            inputsUmum[2].value = d.i;
+            inputsUmum[3].value = d.m;
+            inputsUmum[4].value = d.l;
+            inputsUmum[5].value = d.b || "";
+            inputsUmum[6].value = d.js || 1;
+
+            formCard.classList.add("edit-mode");
+            formTitle.innerHTML = `<i class="ph-bold ph-pencil-simple"></i> Edit / Reschedule Jadwal Ini`;
+            btnSave.innerHTML = `<i class="ph-bold ph-check"></i> Update Jadwal`;
+            btnSave.style.background = "var(--warning)";
+            btnCancel.style.display = "inline-flex";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            editIndex = -1;
+
+            modeSelector.style.display = 'flex';
+            setMode('rutin');
+
+            elTglPengganti.value = getTodayString();
+            inputsUmum.slice(0, 6).forEach(el => el.value = "");
+            document.getElementById("js").value = 1;
+
+            formCard.classList.remove("edit-mode");
+            formTitle.innerHTML = `<i class="ph-fill ph-calendar-plus"></i> Tambah Jadwal Baru`;
+            btnSave.innerHTML = `<i class="ph-bold ph-floppy-disk"></i> Simpan Jadwal`;
+            btnSave.style.background = "var(--primary)";
+            btnCancel.style.display = "none";
+        }
+
+        function del(index) {
+            if (confirm("Apakah Anda yakin ingin menghapus jadwal di tanggal ini?")) {
+                if (editIndex === index) cancelEdit(); else if (editIndex > index) editIndex--;
+                data.splice(index, 1); updateStorage();
+            }
+        }
+
+        function toggleHitung(index) {
+            if (data[index].hitung === undefined) data[index].hitung = false;
+            else data[index].hitung = !data[index].hitung;
+            updateStorage();
+        }
+
+        function render() {
+            tb.innerHTML = "";
+            let totalPendapatan = 0;
+
+            if (data.length === 0) {
+                tb.innerHTML = `<tr><td colspan="10"><div class="empty-state">Belum ada jadwal yang ditambahkan.</div></td></tr>`;
+            } else {
+                let jumlahHari = {}; let jumlahTgl = {};
+
+                data.forEach(d => {
+                    let keyTgl = d.t || "Tanpa Tanggal";
+                    let info = formatTanggal(d.t);
+                    let keyHari = info.hari;
+                    jumlahHari[keyHari] = (jumlahHari[keyHari] || 0) + 1;
+                    jumlahTgl[keyTgl] = (jumlahTgl[keyTgl] || 0) + 1;
+                });
+
+                let hariSaatIni = ""; let tglSaatIni = ""; let hariIniStr = getTodayString();
+
+                data.forEach((d, index) => {
+                    let keyTgl = d.t || "Tanpa Tanggal";
+                    let infoTanggal = formatTanggal(d.t);
+                    let keyHari = infoTanggal.hari;
+
+                    // Deteksi Tanggal Terlewati (Past Date)
+                    let dDate = new Date(keyTgl);
+                    let todayDate = new Date(hariIniStr);
+                    let diffDays = Math.round((dDate - todayDate) / (1000 * 60 * 60 * 24));
+
+                    let isPast = (diffDays < 0);
+                    let isToday = (diffDays === 0);
+
+                    let rowClass = isToday ? 'row-today' : (isPast ? 'row-past' : '');
+                    let htmlRow = `<tr class="${rowClass}">`;
+
+                    let biayaPerSesi = parseInt(d.b) || 0;
+                    let jumlahSesi = parseInt(d.js) || 1;
+                    let totalBaris = biayaPerSesi * jumlahSesi;
+
+                    let isHitung = d.hitung !== false;
+                    // Perhitungan total pendapatan tetap dijumlahkan meskipun tanggal sudah lewat
+                    if (isHitung) totalPendapatan += totalBaris;
+
+                    let formatBiaya = totalBaris > 0 ? `Rp ${totalBaris.toLocaleString('id-ID')}` : '-';
+                    let biayaCellClass = isHitung ? 'biaya-active' : 'biaya-inactive';
+
+                    let jenisBadge = d.jenis === 'Pengganti'
+                        ? `<span class="badge-type type-pengganti" title="Jadwal Perubahan/Reschedule">PENGGANTI</span>`
+                        : `<span class="badge-type type-rutin" title="Jadwal Tetap">RUTIN</span>`;
+
+                    if (keyHari !== hariSaatIni) {
+                        hariSaatIni = keyHari;
+                        htmlRow += `<td rowspan="${jumlahHari[keyHari]}" class="merged-hari">${keyHari}</td>`;
+                    }
+
+                    if (keyTgl !== tglSaatIni) {
+                        tglSaatIni = keyTgl;
+                        let todayCellClass = isToday ? 'today' : '';
+
+                        // Menambahkan class 'terlewat' jika tanggal sudah berlalu
+                        let tglClass = isPast ? 'tgl terlewat' : 'tgl';
+
+                        htmlRow += `
+                        <td rowspan="${jumlahTgl[keyTgl]}" class="merged-day ${todayCellClass}">
+                            <span class="${tglClass}">${infoTanggal.tgl}</span>
+                            ${jenisBadge}
+                        </td>`;
+                    }
+
+                    htmlRow += `
+                        <td style="font-weight: 500;">${d.w}</td>
+                        <td style="font-weight: 700; color: var(--primary);">${d.s}</td>
+                        <td style="font-size: 13px;">${d.i}</td>
+                        <td style="font-size: 13px;">${d.m}</td>
+                        <td style="font-size: 13px;">${d.l}</td>
+                        <td style="text-align: center; font-weight: 600;">${jumlahSesi}x</td>
+                        <td class="${biayaCellClass}">${formatBiaya}</td>
+                        <td class="hide-print">
+                            <div class="action-cell">
+                                <div class="switch-wrapper" title="Hitung ke total pendapatan?">
+                                    Hitung
+                                    <label class="switch">
+                                        <input type="checkbox" onchange="toggleHitung(${index})" ${isHitung ? 'checked' : ''}>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-sm btn-edit" onclick="edit(${index})"><i class="ph-bold ph-pencil-simple"></i> Edit</button>
+                                    <button class="btn-sm btn-danger" onclick="del(${index})"><i class="ph-bold ph-trash"></i> Hapus</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+
+                    tb.innerHTML += htmlRow;
+                });
+            }
+
+            stats.innerHTML = `${data.length} Jadwal`; statsBiaya.innerHTML = `Total: Rp ${totalPendapatan.toLocaleString('id-ID')}`;
+            printStats.innerHTML = `${data.length} Jadwal`; printStatsBiaya.innerHTML = `Rp ${totalPendapatan.toLocaleString('id-ID')}`;
+            updatePrintDate();
+        }
+
+        // ==========================================
+        // FITUR PENGINGAT OTOMATIS (NOTIFICATIONS)
+        // ==========================================
+        function toggleNotification() {
+            if (!("Notification" in window)) return alert("Browser Anda tidak mendukung fitur notifikasi.");
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    alert("Sip! Notifikasi aktif. Biarkan tab ini tetap terbuka di browser agar sistem bisa mengingatkan Anda sesuai jadwal.");
+                    checkReminders();
+                } else alert("Izin notifikasi ditolak. Pengingat tidak dapat berjalan.");
+            });
+        }
+
+        function checkReminders() {
+            if (Notification.permission !== "granted") return;
+
+            const now = new Date();
+            const todayStr = getTodayString();
+            const nowInMins = now.getHours() * 60 + now.getMinutes();
+
+            data.forEach(d => {
+                if (d.t === todayStr) {
+                    let timeMatch = d.w.match(/(\d{1,2})[:.](\d{2})/);
+                    if (timeMatch) {
+                        let startHour = parseInt(timeMatch[1]); let startMin = parseInt(timeMatch[2]);
+                        let startTimeInMins = startHour * 60 + startMin; let diff = startTimeInMins - nowInMins;
+                        let notifKey = `notif_${d.t}_${timeMatch[0]}`;
+
+                        if (diff === 15 && !localStorage.getItem(notifKey + "_15m")) {
+                            new Notification("Persiapan Mengajar! 🕒", { body: `15 menit lagi jadwal ${d.m} bersama ${d.s}.` });
+                            localStorage.setItem(notifKey + "_15m", "true");
+                        }
+                        else if (diff === 0 && !localStorage.getItem(notifKey + "_now")) {
+                            new Notification("Saatnya Mengajar! 📚", { body: `Sekarang waktunya jadwal ${d.m} bersama ${d.s}.` });
+                            localStorage.setItem(notifKey + "_now", "true");
+                        }
+                    }
+                }
+            });
+        }
+        setInterval(checkReminders, 60000); updateStorage(); 
+    </script>
+</body>
+
+</html>
