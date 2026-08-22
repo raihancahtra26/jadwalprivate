@@ -153,6 +153,7 @@
             width: max-content;
             max-width: 100%;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .mode-btn {
@@ -167,6 +168,7 @@
             color: var(--text-muted);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             white-space: nowrap;
         }
@@ -396,6 +398,7 @@
             overflow-x: auto;
             border-radius: 12px;
             border: 1px solid var(--border-color);
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
@@ -454,8 +457,6 @@
             font-weight: 600;
         }
 
-        /* Class Coret Tanggal Past */
-
         /* Type Badges */
         .badge-type {
             display: inline-block;
@@ -491,8 +492,6 @@
         .row-past td:not(.merged-hari):not(.merged-day) {
             background-color: #f8fafc;
         }
-
-        /* Slight dim for past row */
 
         .biaya-active {
             font-weight: 700;
@@ -543,7 +542,104 @@
             display: none;
         }
 
-        /* Print Media Query */
+        /* =========================================
+           RESPONSIVE LAYOUT (MOBILE & TABLET)
+           ========================================= */
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 32px 16px;
+            }
+
+            .hero-section h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                padding: 24px 16px;
+                gap: 20px;
+            }
+
+            .card {
+                padding: 20px;
+                border-radius: 16px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+
+            button.btn-primary,
+            .btn-outline {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .badge-container {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            /* Mengunci lebar tabel agar scrollable dan rapi di HP */
+            table {
+                min-width: 900px;
+            }
+
+            .table-responsive {
+                padding-bottom: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section p {
+                font-size: 13px;
+            }
+
+            .mode-switcher {
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .mode-btn {
+                padding: 10px;
+                font-size: 12px;
+                gap: 4px;
+            }
+
+            .mode-btn i {
+                font-size: 16px;
+            }
+
+            .input-group label {
+                font-size: 12px;
+            }
+
+            .stats-badge {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+
+        /* =========================================
+           PRINT MEDIA QUERY (PDF EXPORT)
+           ========================================= */
         @media print {
             @page {
                 size: A4 landscape;
@@ -625,6 +721,7 @@
             table {
                 width: 100%;
                 border-collapse: collapse;
+                min-width: auto;
             }
 
             th {
@@ -657,43 +754,6 @@
                 margin-top: 70px;
                 border-bottom: 1px solid #0f172a;
                 margin-bottom: 5px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero-section {
-                padding: 32px 20px;
-            }
-
-            .hero-section h1 {
-                font-size: 24px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            button.btn-primary,
-            .btn-outline {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
-
-            .badge-container {
-                margin-left: 0;
-                width: 100%;
-                justify-content: flex-start;
-                flex-wrap: wrap;
             }
         }
     </style>
@@ -799,7 +859,7 @@
                 <div class="badge-container hide-print">
                     <span id="stats" class="stats-badge">0 Jadwal</span>
                     <span id="stats-biaya" class="stats-badge stats-income">Total: Rp 0</span>
-                    <button class="btn-outline" onclick="window.print()" style="padding: 8px 16px; margin-left: 8px;"><i
+                    <button class="btn-outline" onclick="window.print()" style="padding: 6px 14px; margin-left: 4px;"><i
                             class="ph-bold ph-printer"></i> Cetak PDF</button>
                 </div>
             </div>
@@ -1085,7 +1145,6 @@
                     let infoTanggal = formatTanggal(d.t);
                     let keyHari = infoTanggal.hari;
 
-                    // Deteksi Tanggal Terlewati (Past Date)
                     let dDate = new Date(keyTgl);
                     let todayDate = new Date(hariIniStr);
                     let diffDays = Math.round((dDate - todayDate) / (1000 * 60 * 60 * 24));
@@ -1101,7 +1160,6 @@
                     let totalBaris = biayaPerSesi * jumlahSesi;
 
                     let isHitung = d.hitung !== false;
-                    // Perhitungan total pendapatan tetap dijumlahkan meskipun tanggal sudah lewat
                     if (isHitung) totalPendapatan += totalBaris;
 
                     let formatBiaya = totalBaris > 0 ? `Rp ${totalBaris.toLocaleString('id-ID')}` : '-';
@@ -1119,8 +1177,6 @@
                     if (keyTgl !== tglSaatIni) {
                         tglSaatIni = keyTgl;
                         let todayCellClass = isToday ? 'today' : '';
-
-                        // Menambahkan class 'terlewat' jika tanggal sudah berlalu
                         let tglClass = isPast ? 'tgl terlewat' : 'tgl';
 
                         htmlRow += `
