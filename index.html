@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Master Teacher MIS</title>
     <!-- Font Inter & Phosphor Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,6 +26,14 @@
             --income-bg: #dcfce7;
             --income-text: #15803d;
             --warning: #f59e0b;
+        }
+
+        /* PERBAIKAN RESPONSIVE UTAMA */
+        html,
+        body {
+            max-width: 100vw;
+            overflow-x: hidden;
+            /* Mencegah layar HP tergeser/zoom-out */
         }
 
         * {
@@ -54,6 +62,7 @@
             justify-content: center;
             gap: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            width: 100%;
         }
 
         .hero-section h1 {
@@ -96,19 +105,22 @@
             color: #fbbf24;
         }
 
-        /* Layout Container & Cards */
+        /* Layout Container & Cards - Diubah ke Flexbox agar tidak tembus layout */
         .container {
             padding: 40px 24px;
             max-width: 1280px;
             margin: auto;
-            display: grid;
+            display: flex;
+            flex-direction: column;
             gap: 32px;
+            width: 100%;
         }
 
         .card {
             background: var(--card-bg);
             border-radius: 20px;
             padding: 32px;
+            width: 100%;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
             border: 1px solid rgba(226, 232, 240, 0.8);
             transition: all 0.3s ease;
@@ -126,6 +138,8 @@
             margin-bottom: 24px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
         .card-header h3 {
@@ -145,13 +159,13 @@
         /* Mode Switcher Tabs */
         .mode-switcher {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             margin-bottom: 28px;
             background: #f1f5f9;
             padding: 6px;
             border-radius: 12px;
-            width: max-content;
-            max-width: 100%;
+            width: 100%;
+            max-width: max-content;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -171,6 +185,7 @@
             justify-content: center;
             gap: 8px;
             white-space: nowrap;
+            flex: 1;
         }
 
         .mode-btn.active {
@@ -183,18 +198,20 @@
             font-size: 18px;
         }
 
-        /* Form Grid System (Modern Inputs) */
+        /* Form Grid System */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
             margin-bottom: 28px;
+            width: 100%;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
+            width: 100%;
         }
 
         .input-group label {
@@ -230,6 +247,7 @@
             box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
 
+        /* Dropdown Icon Styling */
         select {
             appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -242,6 +260,7 @@
         .btn-group {
             display: flex;
             gap: 14px;
+            width: 100%;
         }
 
         button.btn-primary {
@@ -258,6 +277,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            width: max-content;
         }
 
         button.btn-primary:hover {
@@ -276,7 +296,9 @@
             font-weight: 600;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
+            width: max-content;
         }
 
         .btn-outline:hover {
@@ -393,9 +415,11 @@
             transform: translateX(16px);
         }
 
-        /* Table Styling */
+        /* Table Responsive Styles (Pengunci Scroll) */
         .table-responsive {
+            width: 100%;
             overflow-x: auto;
+            display: block;
             border-radius: 12px;
             border: 1px solid var(--border-color);
             -webkit-overflow-scrolling: touch;
@@ -406,8 +430,10 @@
             border-collapse: collapse;
             text-align: left;
             background: white;
+            min-width: 850px;
         }
 
+        /* Min-width agar tabel tidak berantakan di HP */
         th,
         td {
             padding: 16px;
@@ -511,14 +537,16 @@
         /* Stats Badges */
         .badge-container {
             display: inline-flex;
-            gap: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-left: auto;
+            width: max-content;
         }
 
         .stats-badge {
             background: #f1f5f9;
             color: var(--text-main);
-            padding: 6px 16px;
+            padding: 8px 16px;
             border-radius: 99px;
             font-size: 13px;
             font-weight: 600;
@@ -543,7 +571,7 @@
         }
 
         /* =========================================
-           RESPONSIVE LAYOUT (MOBILE & TABLET)
+           RESPONSIVE MOBILE / SMARTPHONE FIXES
            ========================================= */
         @media (max-width: 768px) {
             .hero-section {
@@ -555,21 +583,20 @@
             }
 
             .container {
-                padding: 24px 16px;
+                padding: 20px 12px;
                 gap: 20px;
             }
 
             .card {
-                padding: 20px;
+                padding: 20px 16px;
                 border-radius: 16px;
             }
 
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
+            .card-header h3 {
+                font-size: 18px;
             }
 
+            /* Form & Tombol Full Lebar di HP */
             .form-grid {
                 grid-template-columns: 1fr;
                 gap: 16px;
@@ -585,24 +612,29 @@
             button.btn-primary,
             .btn-outline {
                 width: 100%;
-                justify-content: center;
+            }
+
+            /* Penyesuaian Flex Header Tabel di HP */
+            .card-header {
+                align-items: flex-start;
+                flex-direction: column;
             }
 
             .badge-container {
                 margin-left: 0;
                 width: 100%;
                 justify-content: flex-start;
-                flex-wrap: wrap;
-                gap: 8px;
             }
 
-            /* Mengunci lebar tabel agar scrollable dan rapi di HP */
-            table {
-                min-width: 900px;
+            /* Mode Switcher Flex */
+            .mode-switcher {
+                width: 100%;
+                max-width: 100%;
             }
 
-            .table-responsive {
-                padding-bottom: 8px;
+            .mode-btn {
+                font-size: 13px;
+                padding: 10px 12px;
             }
         }
 
@@ -612,23 +644,11 @@
             }
 
             .mode-switcher {
-                width: 100%;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
+                flex-wrap: wrap;
             }
 
             .mode-btn {
-                padding: 10px;
-                font-size: 12px;
-                gap: 4px;
-            }
-
-            .mode-btn i {
-                font-size: 16px;
-            }
-
-            .input-group label {
-                font-size: 12px;
+                flex: 1 1 100%;
             }
 
             .stats-badge {
@@ -651,6 +671,8 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 font-size: 11px;
+                overflow: visible;
+                max-width: none;
             }
 
             .hero-section,
@@ -716,6 +738,13 @@
                 border: 1px solid #bbf7d0;
                 background: #f0fdf4 !important;
                 color: #166534 !important;
+            }
+
+            .table-responsive {
+                border: none;
+                overflow: visible;
+                display: table;
+                width: 100%;
             }
 
             table {
@@ -859,10 +888,12 @@
                 <div class="badge-container hide-print">
                     <span id="stats" class="stats-badge">0 Jadwal</span>
                     <span id="stats-biaya" class="stats-badge stats-income">Total: Rp 0</span>
-                    <button class="btn-outline" onclick="window.print()" style="padding: 6px 14px; margin-left: 4px;"><i
+                    <button class="btn-outline" onclick="window.print()" style="padding: 6px 14px;"><i
                             class="ph-bold ph-printer"></i> Cetak PDF</button>
                 </div>
             </div>
+
+            <!-- TABLE CONTAINER UNTUK SCROLLING DI HP -->
             <div class="table-responsive">
                 <table>
                     <thead>
