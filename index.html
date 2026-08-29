@@ -507,12 +507,6 @@
             font-size: 15px;
         }
 
-        .tgl.terlewat {
-            text-decoration: line-through;
-            color: #94a3b8;
-            font-weight: 600;
-        }
-
         /* Type Badges */
         .badge-type {
             display: inline-block;
@@ -545,10 +539,6 @@
             border-left: 4px solid var(--today-highlight);
         }
 
-        .row-past td:not(.merged-hari):not(.merged-day) {
-            background-color: #f8fafc;
-        }
-
         .biaya-active {
             font-weight: 700;
             color: var(--income-text);
@@ -571,6 +561,7 @@
             gap: 10px;
             margin-left: auto;
             width: max-content;
+            align-items: center;
         }
 
         .stats-badge {
@@ -971,7 +962,7 @@
                 <div style="display: flex; gap: 20px; margin-bottom: 20px; justify-content: center;">
                     <div
                         style="border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold;">
-                        Total Jadwal: <span id="print-stats">0</span></div>
+                        Total Jadwal (Aktif & Berlalu): <span id="print-stats">0</span></div>
                     <div
                         style="border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; color: #166534; background: #f0fdf4;">
                         Estimasi Pendapatan: <span id="print-stats-biaya">Rp 0</span></div>
@@ -1190,7 +1181,7 @@
         }
 
         function del(index) {
-            if (confirm("Apakah Anda yakin ingin menghapus jadwal di tanggal ini?")) {
+            if (confirm("Apakah Anda yakin ingin menghapus jadwal di tanggal ini secara permanen?")) {
                 if (editIndex === index) cancelEdit(); else if (editIndex > index) editIndex--;
                 data.splice(index, 1); updateStorage();
             }
@@ -1210,25 +1201,47 @@
             let searchInput = document.getElementById("search-input");
             let keyword = searchInput ? searchInput.value.toLowerCase() : "";
 
-            // Filter data yang cocok dengan keyword pencarian, mapping index originalnya
+            // Filter 1: Pencarian
             let filteredData = data.map((d, index) => ({ ...d, oriIndex: index })).filter(d => {
                 let info = formatTanggal(d.t);
                 let searchStr = `${d.t} ${info.hari} ${info.tgl} ${d.s} ${d.i} ${d.m} ${d.l}`.toLowerCase();
                 return searchStr.includes(keyword);
             });
 
-            if (filteredData.length === 0) {
-                tb.innerHTML = `<tr><td colspan="10"><div class="empty-state">Belum ada jadwal yang ditemukan.</div></td></tr>`;
-                stats.innerHTML = `0 Jadwal`;
-                statsBiaya.innerHTML = `Total: Rp 0`;
-                printStats.innerHTML = `0 Jadwal`;
-                printStatsBiaya.innerHTML = `Rp 0`;
+            // LOGIKA PENTING: HITUNG TOTAL PENDAPATAN DARI SELURUH DATA HASIL PENCARIAN
+            // (Termasuk jadwal yang sudah lewat/hilang dari tabel)
+            filteredData.forEach(d => {
+                let biayaPerSesi = parseInt(d.b) || 0;
+                let jumlahSesi = parseInt(d.js) || 1;
+                let isHitung = d.hitung !== false;
+                if (isHitung) totalPendapatan += (biayaPerSesi * jumlahSesi);
+            });
+
+            // Filter 2: Sembunyikan Jadwal yang Sudah Lewat (Hanya untuk Tampilan Tabel)
+            let hariIniStr = getTodayString();
+            let todayDate = new Date(hariIniStr);
+
+            let activeData = filteredData.filter(d => {
+                let keyTgl = d.t || "Tanpa Tanggal";
+                let dDate = new Date(keyTgl);
+                let diffDays = Math.round((dDate - todayDate) / (1000 * 60 * 60 * 24));
+                return diffDays >= 0; // Jika >= 0 (hari ini atau depan), TAMPILKAN. Jika < 0 SEMBUNYIKAN.
+            });
+
+            if (activeData.length === 0) {
+                tb.innerHTML = `<tr><td colspan="10"><div class="empty-state">Tidak ada jadwal aktif. (Jadwal lalu disembunyikan)</div></td></tr>`;
+
+                // Jika kosong jadwal aktifnya, tetap munculkan total fee dari data yang disembunyikan
+                stats.innerHTML = `0 Aktif <span style="font-size:11px; font-weight:normal; opacity:0.8;">/ ${filteredData.length} Total</span>`;
+                statsBiaya.innerHTML = `Total: Rp ${totalPendapatan.toLocaleString('id-ID')}`;
+                printStats.innerHTML = `${filteredData.length}`;
+                printStatsBiaya.innerHTML = `Rp ${totalPendapatan.toLocaleString('id-ID')}`;
                 return;
             }
 
             let jumlahHari = {}; let jumlahTgl = {};
 
-            filteredData.forEach(d => {
+            activeData.forEach(d => {
                 let keyTgl = d.t || "Tanpa Tanggal";
                 let info = formatTanggal(d.t);
                 let keyHari = info.hari;
@@ -1236,30 +1249,25 @@
                 jumlahTgl[keyTgl] = (jumlahTgl[keyTgl] || 0) + 1;
             });
 
-            let hariSaatIni = ""; let tglSaatIni = ""; let hariIniStr = getTodayString();
+            let hariSaatIni = ""; let tglSaatIni = "";
 
-            filteredData.forEach((d) => {
-                let oriIndex = d.oriIndex; // Ambil index original untuk Edit, Hapus, dan Toggle
+            activeData.forEach((d) => {
+                let oriIndex = d.oriIndex;
                 let keyTgl = d.t || "Tanpa Tanggal";
                 let infoTanggal = formatTanggal(d.t);
                 let keyHari = infoTanggal.hari;
 
                 let dDate = new Date(keyTgl);
-                let todayDate = new Date(hariIniStr);
                 let diffDays = Math.round((dDate - todayDate) / (1000 * 60 * 60 * 24));
 
-                let isPast = (diffDays < 0);
                 let isToday = (diffDays === 0);
-
-                let rowClass = isToday ? 'row-today' : (isPast ? 'row-past' : '');
+                let rowClass = isToday ? 'row-today' : '';
                 let htmlRow = `<tr class="${rowClass}">`;
 
                 let biayaPerSesi = parseInt(d.b) || 0;
                 let jumlahSesi = parseInt(d.js) || 1;
                 let totalBaris = biayaPerSesi * jumlahSesi;
-
                 let isHitung = d.hitung !== false;
-                if (isHitung) totalPendapatan += totalBaris;
 
                 let formatBiaya = totalBaris > 0 ? `Rp ${totalBaris.toLocaleString('id-ID')}` : '-';
                 let biayaCellClass = isHitung ? 'biaya-active' : 'biaya-inactive';
@@ -1276,11 +1284,10 @@
                 if (keyTgl !== tglSaatIni) {
                     tglSaatIni = keyTgl;
                     let todayCellClass = isToday ? 'today' : '';
-                    let tglClass = isPast ? 'tgl terlewat' : 'tgl';
 
                     htmlRow += `
                     <td rowspan="${jumlahTgl[keyTgl]}" class="merged-day ${todayCellClass}">
-                        <span class="${tglClass}">${infoTanggal.tgl}</span>
+                        <span class="tgl">${infoTanggal.tgl}</span>
                         ${jenisBadge}
                     </td>`;
                 }
@@ -1313,10 +1320,10 @@
                 tb.innerHTML += htmlRow;
             });
 
-            // Perbarui stats berdasarkan hasil pencarian (Filtered)
-            stats.innerHTML = `${filteredData.length} Jadwal`;
+            // Perbarui stats
+            stats.innerHTML = `${activeData.length} Aktif <span style="font-size:11px; font-weight:normal; opacity:0.8;">/ ${filteredData.length} Total</span>`;
             statsBiaya.innerHTML = `Total: Rp ${totalPendapatan.toLocaleString('id-ID')}`;
-            printStats.innerHTML = `${filteredData.length} Jadwal`;
+            printStats.innerHTML = `${filteredData.length}`;
             printStatsBiaya.innerHTML = `Rp ${totalPendapatan.toLocaleString('id-ID')}`;
             updatePrintDate();
         }
