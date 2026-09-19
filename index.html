@@ -10,7 +10,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         :root {
-            /* Brand Colors based on preferences */
+            /* Brand Colors: Navy & Teal */
             --primary: #124060;
             --primary-hover: #0d2f47;
             --accent: #1CD69B;
@@ -46,7 +46,6 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
-            /* Dihapus: overflow-x: hidden agar desktop mode di HP tidak memotong konten */
             min-height: 100vh;
             width: 100%;
         }
@@ -111,7 +110,7 @@
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
-            width: calc(100% - var(--sidebar-width)); /* CRITICAL FIX: Mencegah elemen keluar layar */
+            width: calc(100% - var(--sidebar-width)); 
             display: flex;
             flex-direction: column;
             transition: margin 0.3s ease, width 0.3s ease;
@@ -153,7 +152,7 @@
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        /* ================= COMPONENTS ================= */
+        /* ================= COMPONENTS (Glassmorphism & Cards) ================= */
         .card {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
@@ -213,7 +212,7 @@
         /* Form Grid & Inputs */
         .form-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Disesuaikan agar muat di layar lebih rapat */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px; margin-bottom: 32px; 
         }
         .input-group { display: flex; flex-direction: column; gap: 8px; }
@@ -256,13 +255,12 @@
             border: 1px solid var(--border-color); background: white;
             -webkit-overflow-scrolling: touch;
         }
-        /* Custom Scrollbar for modern look */
         .table-responsive::-webkit-scrollbar { height: 8px; }
         .table-responsive::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 0 0 16px 16px; }
         .table-responsive::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .table-responsive::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 850px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 900px; }
         th, td { padding: 16px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
         th { background: #f8fafc; color: var(--text-muted); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         tbody tr:hover td:not(.merged-hari):not(.merged-day) { background-color: #f8fafc; }
@@ -296,7 +294,6 @@
 
         /* ================= RESPONSIVE DESIGN ================= */
         @media (max-width: 992px) {
-            /* Fix untuk Desktop Mode di Layar Kecil (Tablet/Landscape HP) */
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
             .main-content { margin-left: 0; width: 100%; }
@@ -308,7 +305,6 @@
             .card { padding: 20px 16px; border-radius: 16px; }
             .topbar { padding: 16px; }
             
-            /* Fleksibilitas Header & Filter agar stack elegan */
             .card-header { flex-direction: column; align-items: flex-start; gap: 12px; }
             .badge-container { width: 100%; }
             .search-filter-bar { flex-direction: column; align-items: stretch; width: 100%; }
@@ -722,14 +718,16 @@
             if (activeData.length === 0) {
                 tb.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 50px 20px; color: #94a3b8; font-size: 14px; background: #f8fafc;">Tidak ada data jadwal kelas <b style="color:var(--text-main);">${laporanKategori}</b> di bulan ini.</td></tr>`;
             } else {
-                let jumlahHari = {}, jumlahTgl = {};
+                
+                // PERBAIKAN BUG ROWSPAN:
+                // Sekarang kita hanya menghitung rowspan berdasarkan Tanggal yang persis sama.
+                let jumlahTgl = {};
                 activeData.forEach(d => {
-                    let keyTgl = d.t; let keyHari = formatTanggal(d.t).hari;
-                    jumlahHari[keyHari] = (jumlahHari[keyHari] || 0) + 1;
+                    let keyTgl = d.t;
                     jumlahTgl[keyTgl] = (jumlahTgl[keyTgl] || 0) + 1;
                 });
 
-                let hariSaatIni = "", tglSaatIni = "";
+                let tglSaatIni = "";
 
                 activeData.forEach(d => {
                     let info = formatTanggal(d.t);
@@ -741,14 +739,13 @@
 
                     let htmlRow = `<tr>`;
                     
-                    if (info.hari !== hariSaatIni) {
-                        hariSaatIni = info.hari;
-                        htmlRow += `<td rowspan="${jumlahHari[info.hari]}" class="merged-hari">${info.hari}</td>`;
-                    }
+                    // Kolom Hari dan Tanggal hanya di-merge jika TANGGAL-nya persis sama
                     if (d.t !== tglSaatIni) {
                         tglSaatIni = d.t;
                         let bClass = d.jenis === 'Pengganti' ? 'type-pengganti' : (d.kategori === 'Privat' ? 'type-privat' : 'type-rutin');
                         let bText = d.jenis === 'Pengganti' ? 'RESCHEDULE' : 'RUTIN';
+                        
+                        htmlRow += `<td rowspan="${jumlahTgl[d.t]}" class="merged-hari">${info.hari}</td>`;
                         htmlRow += `<td rowspan="${jumlahTgl[d.t]}" class="merged-day"><span class="tgl">${info.tgl}</span><span class="badge-type ${bClass}">${bText}</span></td>`;
                     }
 
@@ -767,8 +764,8 @@
                                     Hitung <label class="switch"><input type="checkbox" onchange="toggleHitung(${d.oriIndex})" ${isHitung ? 'checked' : ''}><span class="slider"></span></label>
                                 </div>
                                 <div style="display:flex; gap:6px; width: 100%;">
-                                    <button class="btn-sm btn-edit" onclick="edit(${d.oriIndex})"><i class="ph-bold ph-pencil-simple"></i></button>
-                                    <button class="btn-sm btn-danger" onclick="del(${d.oriIndex})"><i class="ph-bold ph-trash"></i></button>
+                                    <button class="btn-sm btn-edit" onclick="edit(${d.oriIndex})" title="Edit"><i class="ph-bold ph-pencil-simple"></i></button>
+                                    <button class="btn-sm btn-danger" onclick="del(${d.oriIndex})" title="Hapus"><i class="ph-bold ph-trash"></i></button>
                                 </div>
                             </div>
                         </td>
