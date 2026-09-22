@@ -35,6 +35,10 @@
             --success: #10b981;
             --warning: #f59e0b;
             --sidebar-width: 260px;
+
+            /* Highlight Hari Ini */
+            --row-today-bg: #e0f2fe;
+            --row-today-border: #38bdf8;
         }
 
         /* Dark Mode Variables */
@@ -48,6 +52,10 @@
             --table-hover: #1e293b;
             --table-header: #0f172a;
             --info-bg: #0369a1;
+
+            /* Highlight Hari Ini Dark Mode */
+            --row-today-bg: rgba(14, 165, 233, 0.15);
+            --row-today-border: #0284c7;
         }
 
         /* RESET & BASE */
@@ -231,6 +239,15 @@
         th, td { padding: 16px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
         th { background: var(--table-header); color: var(--text-muted); font-weight: 700; font-size: 11px; text-transform: uppercase; }
         tbody tr:hover td:not(.merged-hari):not(.merged-day) { background-color: var(--table-hover); }
+        
+        /* Highlight Styling (Hari Ini) */
+        tbody tr.row-today {
+            background-color: var(--row-today-bg) !important;
+            border: 2px solid var(--row-today-border);
+        }
+        tbody tr.row-today td {
+            border-bottom: 1px solid var(--row-today-border);
+        }
         
         .merged-hari { background: var(--table-header); text-align: center; color: var(--accent); font-weight: 700; border-right: 2px solid var(--border-color); }
         .merged-day { background: transparent; text-align: center; border-right: 1px solid var(--border-color); }
@@ -437,7 +454,7 @@
                     <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
                         <h3><i class="ph-fill ph-chart-line-up"></i> Rekapitulasi Pendapatan</h3>
                         <div class="badge-container hide-print">
-                            <span id="stats-count" class="stats-badge">0 Jadwal</span>
+                            <span id="stats-count" class="stats-badge">0 Jadwal Mendatang</span>
                             <span id="stats-biaya" class="stats-badge stats-income">Total: Rp 0</span>
                             
                             <!-- Tombol Share Link & Cetak PDF -->
@@ -495,7 +512,7 @@
                             <p style="margin: 6px 0; font-size: 12px; color: #475569;" id="print-periode">Periode: -</p>
                         </div>
                         <div style="display: flex; gap: 24px; justify-content: center; margin-bottom: 24px;">
-                            <div style="border: 1px solid #cbd5e1; padding: 10px 20px; font-weight: bold; border-radius: 8px;">Total Jadwal: <span id="print-stats">0</span></div>
+                            <div style="border: 1px solid #cbd5e1; padding: 10px 20px; font-weight: bold; border-radius: 8px;">Total Jadwal (Semua): <span id="print-stats">0</span></div>
                             <div style="border: 1px solid var(--accent); background: #f0fdf4; padding: 10px 20px; font-weight: bold; color: #166534; border-radius: 8px;">Pendapatan: <span id="print-stats-biaya">Rp 0</span></div>
                         </div>
                         <div class="signature-area">
@@ -622,7 +639,7 @@
                 labels.push(monthLabel);
             }
 
-            // Hitung data
+            // Hitung data (TETAP MENGHITUNG SEMUA YANG DICENTANG HITUNG)
             data.forEach(item => {
                 if(item.hitung !== false) {
                     const mk = item.t ? item.t.substring(0, 7) : "";
@@ -679,7 +696,7 @@
             const income = document.getElementById("stats-biaya").innerText;
             
             // Generate Ringkasan Teks
-            const shareText = `*Laporan Kelas ${kategori}*\n${periode}\n\nJumlah: ${total}\n${income}\n\n- Generate by Teacher MIS`;
+            const shareText = `*Laporan Kelas ${kategori}*\n${periode}\n\nJumlah (Mendatang): ${total}\n${income}\n\n- Generate by Teacher MIS`;
 
             if (navigator.share) {
                 // Gunakan Web Share API (Mobile native popup)
@@ -835,14 +852,20 @@
         }
 
         function render() {
-            tb.innerHTML = ""; let totalPendapatan = 0;
+            tb.innerHTML = ""; 
+            let totalPendapatanSeluruhnya = 0; // Menghitung TOTAL, termasuk yang sudah lewat (hidden)
+            let jumlahJadwalMendatang = 0; // Menghitung total jadwal yang akan tampil di tabel (belum lewat)
+
             let keyword = (document.getElementById("search-input").value || "").toLowerCase();
             let monthFilter = filterBulan.value; 
             
             let [yF, mF] = monthFilter.split("-");
             document.getElementById("print-periode").innerText = `Periode: ${namaBulan[parseInt(mF)-1]} ${yF}`;
             
-            let activeData = data.map((d, index) => ({ ...d, oriIndex: index })).filter(d => {
+            const todayStr = getTodayString();
+
+            // 1. Filter Data yang MATCH Kategori, Bulan, dan Search Keyword
+            let filteredData = data.map((d, index) => ({ ...d, oriIndex: index })).filter(d => {
                 let kat = d.kategori || 'Reguler'; 
                 let isMatchKategori = (kat === laporanKategori);
                 let isMatchBulan = d.t && d.t.startsWith(monthFilter); 
@@ -852,26 +875,40 @@
                 return isMatchKategori && isMatchBulan && isMatchSearch;
             });
 
-            if (activeData.length === 0) {
-                tb.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 50px 20px; color: var(--text-muted); font-size: 14px; background: var(--table-header);">Tidak ada data jadwal kelas <b style="color:var(--text-main);">${laporanKategori}</b> di bulan ini.</td></tr>`;
+            // 2. Hitung Total Pendapatan Seluruhnya dari 'filteredData' (termasuk yang lewat)
+            filteredData.forEach(d => {
+                 let biayaPerSesi = parseInt(d.b) || 0;
+                 let jumlahSesi = parseInt(d.js) || 1;
+                 if (d.hitung !== false) {
+                     totalPendapatanSeluruhnya += (biayaPerSesi * jumlahSesi);
+                 }
+            });
+
+            // 3. Filter Lagi: Hanya tampilkan data yang TANGGALNYA HARI INI ATAU KE DEPAN di Tabel
+            let visibleData = filteredData.filter(d => d.t >= todayStr);
+
+            if (visibleData.length === 0) {
+                tb.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 50px 20px; color: var(--text-muted); font-size: 14px; background: var(--table-header);">Tidak ada jadwal mendatang untuk kelas <b style="color:var(--text-main);">${laporanKategori}</b> di bulan ini.</td></tr>`;
             } else {
                 let jumlahTgl = {};
-                activeData.forEach(d => {
+                visibleData.forEach(d => {
                     let keyTgl = d.t;
                     jumlahTgl[keyTgl] = (jumlahTgl[keyTgl] || 0) + 1;
                 });
 
                 let tglSaatIni = "";
 
-                activeData.forEach(d => {
+                visibleData.forEach(d => {
+                    jumlahJadwalMendatang++; // Tambahkan hitungan untuk jadwal yang tampil
                     let info = formatTanggal(d.t);
                     let biayaPerSesi = parseInt(d.b) || 0, jumlahSesi = parseInt(d.js) || 1;
                     let totalBaris = biayaPerSesi * jumlahSesi;
                     let isHitung = d.hitung !== false;
                     
-                    if (isHitung) totalPendapatan += totalBaris;
+                    // Cek jika baris adalah Hari Ini
+                    let rowClass = (d.t === todayStr) ? "row-today" : "";
 
-                    let htmlRow = `<tr>`;
+                    let htmlRow = `<tr class="${rowClass}">`;
                     
                     if (d.t !== tglSaatIni) {
                         tglSaatIni = d.t;
@@ -907,10 +944,13 @@
                 });
             }
 
-            let formatTotal = `Rp ${totalPendapatan.toLocaleString('id-ID')}`;
-            document.getElementById("stats-count").innerText = `${activeData.length} Jadwal Aktif`;
+            // Tampilkan Format
+            let formatTotal = `Rp ${totalPendapatanSeluruhnya.toLocaleString('id-ID')}`;
+            document.getElementById("stats-count").innerText = `${jumlahJadwalMendatang} Jadwal Mendatang`;
             document.getElementById("stats-biaya").innerText = `Estimasi Fee: ${formatTotal}`;
-            document.getElementById("print-stats").innerText = activeData.length;
+            
+            // Print Info
+            document.getElementById("print-stats").innerText = filteredData.length; // Print menampilkan total semua jadwal di bulan tersebut
             document.getElementById("print-stats-biaya").innerText = formatTotal;
             
             const n = new Date();
